@@ -106,7 +106,14 @@ print "\n\n Building the lookup file that connects UR50 clusters to UR100 sequen
 build_lookup($out);
 
 print "\n\n Building the BLAST databases...\n\n\n";
+print `gunzip $out/uniref100.fasta.gz`;
+print `makeblastdb -in $out/uniref100.fasta -dbtype prot -out $out/UNIREF100 -parse_seqids`;
+print `rm $out/uniref100.fasta`;
+print `gunzip $out/uniref50.fasta.gz`;
+print `makeblastdb -in $out/uniref50.fasta -dbtype prot -out $out/UNIREF50`;
+print `rm $out/uniref50.fasta`;
 
+print "\n All done!\n";
 
 sub build_lookup
 {
