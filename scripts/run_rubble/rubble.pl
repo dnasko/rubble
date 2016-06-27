@@ -203,10 +203,23 @@ my $residues = `blastdbcmd -db $db -info | grep "total residues"`;
 $residues =~ s/ total residues.*//;
 $residues =~ s/.* //;
 $residues =~ s/,//g;
+open(IN,"<$lookup") || die "\n Cannot open the file: $lookup\n";
+open(OUT,">$working_dir/2-restrict/restrict.txt") || die "\n Cannot write to: $working_dir/2-restrict/restrict.txt\n";
+while(<IN>) {
+    chomp;
+    my @a = split(/\t/, $_);
+    if (exists $SubjectCull{$a[0]}) {
+	print OUT $a[1] . "\n";
+    }
+}
+close(IN);
+close(OUT);
 
 ###############################################
 ## 4. Final BLAST using the restriction list ##
 ###############################################
+
+
 
 ## Cleaning up.
 unless ($debug && -d $working_dir) {
