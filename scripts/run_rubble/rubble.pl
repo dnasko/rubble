@@ -156,13 +156,47 @@ if ($threads == 1) {
     my $blast_exe = "blastp -query " . $query .	" -db " . $dbClust . " -out " . $working_dir . "/0-blast_clust/out.btab" . " -evalue " . $evalue . " -outfmt 6";
     print `$blast_exe`;
 }
-else { para_blastp($query, $dbClust, $working_dir . "/0-blast_clust/out.btab", $evalue, $threads); }
+else { para_blastp($query, $dbClust, "$working_dir/0-blast_clust/", $evalue, $threads); }
 
 ## Cull the query sequences that have a hit.
-
+my %QueryCull;
+my %SubjectCull;
+my $print_flag = 0;
+open(IN,"<$working_dir/0-blast_clust/out.btab") || die "\n Cannot open the file: $working_dir/0-blast_clust/out.btab\n";
+while(<IN>) {
+    chomp;
+    my @a = split(/\t/, $_);
+    $QueryCull{$a[0]} = 1;
+    $SubjectCull{$a[1]} = 1;
+}
+close(IN);
+open(OUT,">$working_dir/1-cull/query_cull.fasta") || die "\n Error: Cannot write to $working_dir/1-cull/query_cull.fasta\n";
+open(IN,"<$query") || die "\n Cannot open the file: $query\n";
+while(<IN>) {
+    chomp;
+    if ($_ =~ m/^>/) {
+	$print_flag = 0;
+	my $h = $_;
+	$h =~ s/^>//;
+	$h =~ s/ .*//;
+	if (exists $QueryCull{$h}) {
+	    $print_flag = 1;
+	    print OUT $_ . "\n";
+	}
+    }
+    elsif ($print_flag == 1) {
+	print OUT $_ . "\n";
+    }
+}
+close(IN);
+close(OUT);
 
 ## Create the restriction list for the final BLAST. Also, figure out how large the final BLAST db is...
-# blastdbcmd -db MGOL_DEC2014 -info
+my $residues = `blastdbcmd -db $db -info | grep "total residues"`;
+$residues =~ s/ total residues.*//;
+$residues =~ s/.* //;
+$residues =~ s/,//g;
+print "\nresidues  " . $residues . "\n\n";
 
 ## Final BLAST using the restriction list.
 
@@ -180,18 +214,18 @@ sub para_blastp
     my $e = $_[3];
     my $t = $_[4];
     my @THREADS;
-    print `mkdir -p $working_dir/0-blast_clust/para_blastp`;
+    print `mkdir -p $o/para_blastp`;
     my $seqs=count_seqs($q);
     my $seqs_per_thread = seqs_per_thread($seqs, $threads);
-    split_multifasta($q, "$working_dir/0-blast_clust/para_blastp", "split", $seqs_per_thread);
-    for (my $i=1; $i<=$t; $i++) {
-	my $blast_exe = "blastp -query $working_dir/0-blast_clust/para_blastp/split-$i.fsa -db $dbClust -out $working_dir/0-blast_clust/para_blastp/$i.btab -outfmt 6 -evalue $evalue";
+    my $nfiles = split_multifasta($q, "$o/para_blastp", "split", $seqs_per_thread, $t);
+    for (my $i=1; $i<=$nfiles; $i++) {
+	my $blast_exe = "blastp -query $o/para_blastp/split-$i.fsa -db $dbClust -out $o/para_blastp/$i.btab -outfmt 6 -evalue $evalue";
 	push (@THREADS, threads->create('task',"$blast_exe"));
     }
     foreach my $thread (@THREADS) {
 	$thread->join();
     }
-    
+    print `cat $o/para_blastp/*.btab > $o/out.btab`;
 }
 sub split_multifasta
 {
@@ -199,14 +233,16 @@ sub split_multifasta
     my $working = $_[1];
     my $prefix  = $_[2];
     my $spt     = $_[3];
+    my $nfiles  = $_[4];
     my $j=0;
     my $fileNumber=1;
+    print `mkdir -p $working`;
     open(IN,"<$q") || die "\n Cannot open the file: $q\n";
     open (OUT, "> $working/$prefix-$fileNumber.fsa") or die "Error! Cannot create output file: $working/$prefix-$fileNumber.fsa\n";
     while(<IN>) {
 	chomp;
 	if ($_ =~ /^>/) { $j++; }
-	if ($j > $spt) { #if time for new output file
+	if ($j > $spt && $fileNumber < $nfiles) { #if time for new output file
 	    close(OUT);
 	    $fileNumber++;
 	    open (OUT, "> $working/$prefix-$fileNumber.fsa") or die "Error! Cannot create output file: $working/$prefix-$fileNumber.fsa\n";
@@ -216,6 +252,7 @@ sub split_multifasta
     }
     close(IN);
     close(OUT);
+    return $fileNumber;
 }
 sub seqs_per_thread
 {
@@ -224,7 +261,7 @@ sub seqs_per_thread
     my $seqs_per_file = $s / $t;
     if ($seqs_per_file =~ m/\./) {
 	$seqs_per_file =~ s/\..*//;
-	$seqs_per_file++;
+	# $seqs_per_file++;
     }
     return $seqs_per_file;
 }
