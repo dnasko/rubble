@@ -80,6 +80,7 @@ use Pod::Usage;
 
 #ARGUMENTS WITH NO DEFAULT
 my($out,$help,$manual);
+my $version = "1.0";
 
 GetOptions (	
 				"o|out=s"	=>	\$out,
@@ -96,6 +97,8 @@ my $PROG = `which wget`; unless ($PROG =~ m/wget/) { die "\n ERROR: External pro
 $PROG = `which makeblastdb`; unless ($PROG =~ m/makeblastdb/) { die "\n ERROR: External program \"makeblastdb\" not installed. Please install it or use a machine with it installed.\n\n" }
 
 print "\n\n Downloading UniRef100 and UniRef50 FASTA's as well as the UniRef50 XML file...\n\n\n";
+
+print_log_info($out);
 
 print `mkdir -p $out`;
 print `wget "ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref100/uniref100.fasta.gz" -O $out/uniref100.fasta.gz`;
@@ -115,6 +118,15 @@ print `rm $out/uniref50.fasta`;
 
 print "\n All done!\n";
 
+sub print_log_info
+{
+    my $log_file = $_[0] . "/" . "UniRef_RUBBLE_Database_Build.log";
+    my $date = `date`;
+    open(OUT,">$log_file") || die "\n Cannot write to $log_file\n";
+    print OUT "This UniRef RUBBLE BLAST database was build on: $date\n";
+    print OUT "Using RUBBLE BLAST version $version\n";
+    close(OUT);
+}
 sub build_lookup
 {
     my $infile = $_[0] . "/" . "uniref50.xml.gz";
