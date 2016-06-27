@@ -123,7 +123,7 @@ sub print_log_info
     my $log_file = $_[0] . "/" . "UniRef_RUBBLE_Database_Build.log";
     my $date = `date`;
     open(OUT,">$log_file") || die "\n Cannot write to $log_file\n";
-    print OUT "This UniRef RUBBLE BLAST database was build on: $date\n";
+    print OUT "This UniRef RUBBLE BLAST database was build on: $date";
     print OUT "Using RUBBLE BLAST version $version\n";
     close(OUT);
 }
@@ -153,3 +153,4 @@ sub build_lookup
 }
 
 exit 0;
+B
