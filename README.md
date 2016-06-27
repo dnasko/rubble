@@ -4,7 +4,7 @@ Welcome to RUBBLE, a pipeline that enables you to perform BLAST searches 10-20X 
 
 RUBBLE is most useful when your subject BLAST database is large (e.g. UniRef).
 
-1 Downloading RUBBLE
+1. Downloading RUBBLE
 ----------------------
 
 To download, simply clone the RUBBLE repository from GitHub:
@@ -13,7 +13,7 @@ To download, simply clone the RUBBLE repository from GitHub:
 
 And RUBBLE will be cloned to your working directory.
 
-2 Installing RUBBLE and its Dependencies
+2. Installing RUBBLE and its Dependencies
 ------------------------------------------
 
 Once you have cloned the repository you should see XX files and YY direcotries:
