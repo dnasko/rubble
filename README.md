@@ -18,4 +18,7 @@ And RUBBLE will be cloned to your working directory.
 
 Once you have cloned the repository you should see XX files and YY direcotries:
 
-![Alt text](https://github.com/dnasko/rubble/blob/master/images/UD_logo.png "Delaware")
+Acknowledgements
+----------------
+
+Support from the University of Delaware Center for Bioinformatics and Computational Biology Core Facility and use of the BIOMIX compute cluster was made possible through funding from Delaware INBRE (NIGMS GM103446) and the Delaware Biotechnology Institute.
