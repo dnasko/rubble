@@ -98,9 +98,8 @@ $PROG = `which makeblastdb`; unless ($PROG =~ m/makeblastdb/) { die "\n ERROR: E
 
 print "\n\n Downloading UniRef100 and UniRef50 FASTA's as well as the UniRef50 XML file...\n\n\n";
 
-print_log_info($out);
-
 print `mkdir -p $out`;
+print_log_info($out);
 print `wget "ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref100/uniref100.fasta.gz" -O $out/uniref100.fasta.gz`;
 print `wget "ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref50/uniref50.fasta.gz" -O $out/uniref50.fasta.gz`;
 print `wget "ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref50/uniref50.xml.gz" -O $out/uniref50.xml.gz`;
