@@ -128,7 +128,7 @@ pod2usage( -msg  => "\n\n ERROR!  Required argument --dbClust not found.\n\n", -
 pod2usage( -msg  => "\n\n ERROR!  Required argument --lookup not found.\n\n", -exitval => 2, -verbose => 1)  if (! $lookup);
 pod2usage( -msg  => "\n\n ERROR!  Required argument --out not found.\n\n", -exitval => 2, -verbose => 1)     if (! $out);
 
-
+if ($grid ) { print "\n Warning: The --grid option is not working yet.\n"; }
 
 
 
