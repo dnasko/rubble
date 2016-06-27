@@ -121,7 +121,7 @@ GetOptions (
 				"m|manual"	=>	\$manual,
                                 "b|debug"       =>      \$debug);
 
-# VALIDATE ARGS
+## VALIDATE ARGS
 pod2usage(-verbose => 2)  if ($manual);
 pod2usage( {-exitval => 0, -verbose => 2, -output => \*STDERR} )  if ($help);
 pod2usage( -msg  => "\n\n ERROR!  Required argument --query not found.\n\n", -exitval => 2, -verbose => 1)   if (! $query);
@@ -134,13 +134,13 @@ if ($threads < 1) { die "\n Error! --threads needs to be >0 and a whole number.\
 
 if ($grid ) { print "\n Warning: The --grid option is not working yet.\n"; }
 
-## Checking that blastp is installed.
+## Checking that blastp is installed
 my $BLASTP = `which blastp`;
 unless ($BLASTP =~ m/blastp/) { die "\n ERROR: NCBI's blastp is not installed, or not located in your PATH. Please install it and put it in your PATH (ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/)\n"; }
 my $BLASTDBCMD = `which blastdbcmd`;
 unless ($BLASTDBCMD =~ m/blastdbcmd/) { die "\n ERROR: blastdbcmd is not installed or in your PATH. It's a part of NCBI's blast package.\n"; }
 
-## Create a temporary working directory that will be removed after we're done.
+## Create a temporary working directory that will be removed after we're done
 my @chars = ("A".."Z", "a".."z");
 my $rand_string;
 $rand_string .= $chars[rand @chars] for 1..8;
@@ -151,14 +151,18 @@ print `mkdir -p $working_dir/1-cull`;
 print `mkdir -p $working_dir/2-restrict`;
 print `mkdir -p $working_dir/3-blast_final`;
 
-## Initial BLAST against clustered BLAST DB.
+#################################################
+## 1. Initial BLAST against clustered BLAST DB ##
+#################################################
 if ($threads == 1) {
     my $blast_exe = "blastp -query " . $query .	" -db " . $dbClust . " -out " . $working_dir . "/0-blast_clust/out.btab" . " -evalue " . $evalue . " -outfmt 6";
     print `$blast_exe`;
 }
 else { para_blastp($query, $dbClust, "$working_dir/0-blast_clust/", $evalue, $threads); }
 
-## Cull the query sequences that have a hit.
+#################################################
+## 2. Cull the query sequences that have a hit ##
+#################################################
 my %QueryCull;
 my %SubjectCull;
 my $print_flag = 0;
@@ -191,15 +195,18 @@ while(<IN>) {
 close(IN);
 close(OUT);
 
-## Create the restriction list for the final BLAST. Also, figure out how large the final BLAST db is...
+#############################################################
+## 3.  Create the restriction list for the final BLAST.    ##
+##     Also, figure out how large the final BLAST db is... ##
+#############################################################
 my $residues = `blastdbcmd -db $db -info | grep "total residues"`;
 $residues =~ s/ total residues.*//;
 $residues =~ s/.* //;
 $residues =~ s/,//g;
-print "\nresidues  " . $residues . "\n\n";
 
-## Final BLAST using the restriction list.
-
+###############################################
+## 4. Final BLAST using the restriction list ##
+###############################################
 
 ## Cleaning up.
 unless ($debug && -d $working_dir) {
