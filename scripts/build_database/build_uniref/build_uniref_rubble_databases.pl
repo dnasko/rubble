@@ -106,6 +106,7 @@ print `wget "ftp://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref50/uniref5
 
 print "\n\n Building the lookup file that connects UR50 clusters to UR100 sequences...\n\n\n";
 build_lookup($out);
+print `rm $out/uniref50.xml.gz`;
 
 print "\n\n Building the BLAST databases...\n\n\n";
 print `gunzip $out/uniref100.fasta.gz`;
