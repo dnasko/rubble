@@ -9,7 +9,7 @@ RUBBLE is most useful when your subject BLAST database is large (e.g. UniRef100)
 
 To download, simply clone the RUBBLE repository from GitHub:
 
-`$ git clone git@github.com:dnasko/rubble`
+> git clone git@github.com:dnasko/rubble
 
 And RUBBLE will be cloned to your working directory.
 
@@ -33,6 +33,11 @@ Once you have cloned the repository you should see 3 files and 3 direcotries:
 
 3. Using RUBBLE
 ---------------
+
+Before you can BLAST a set of query sequences against a set of subject sequences you must create an indexed database. The same is true for RUBBBLE, but with an additional requirement. Not only do we need a BLAST database of your subject sequences, we need a BLAST database of your clustered subject sequences. Below I will breifly detail how RUBBLE databases are created and then how RUBBLE can be run.
+
+#### Creating RUBBLE databases
+
 
 
 
