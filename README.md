@@ -16,7 +16,18 @@ And RUBBLE will be cloned to your working directory.
 2. Installing RUBBLE and its Dependencies
 ------------------------------------------
 
-Once you have cloned the repository you should see XX files and YY direcotries:
+Once you have cloned the repository you should see 3 files and 3 direcotries:
+
+* `LICENSE` the GPL version 2.
+* `README.md` this read me!
+* `./getting_started` a directory containing some additional information to help you get started.
+* `./images` a drectory with images, logos, etc. No need to worry about any of this.
+* `rubble.pl` a symbolic link to the rubble.pl script. Let's you run RUBBLE after you have databases built.
+* `./scripts` the scripts directory, which has all of the important bits.
+
+3. Using RUBBLE
+---------------
+
 
 Acknowledgements
 ----------------
