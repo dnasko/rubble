@@ -25,7 +25,7 @@ Once you have cloned the repository you should see 3 files and 3 direcotries:
 * **rubble.pl** a symbolic link to the rubble.pl script. Let's you run RUBBLE after you have databases built.
 * **./scripts** the scripts directory, which has all of the important bits.
 
-**RUBBLE has one external dependency, and it's NCBI BLAST+**. Before you can run this pipeline you will need to be sure that all executables (especially blastp, makeblastdb, and blastdbcmd) are installed on your machine and included in your PATH. [Latest versions of BLAST binaries are located here](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/, "BLAST").
+**RUBBLE has one external dependency, and it's NCBI BLAST+**. Before you can run this pipeline you will need to be sure that all executables (especially blastp, makeblastdb, and blastdbcmd) are installed on your machine and included in your PATH. [Latest versions of BLAST binaries are located here](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download).
 
 3. Using RUBBLE
 ---------------
