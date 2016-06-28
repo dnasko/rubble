@@ -27,7 +27,9 @@ Once you have cloned the repository you should see 3 files and 3 direcotries:
 
 **RUBBLE has one external dependency, and it's NCBI BLAST+**. Before you can run this pipeline you will need to be sure that all executables (especially blastp, makeblastdb, and blastdbcmd) are installed on your machine and included in your PATH. [Latest versions of BLAST binaries are located here](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download).
 
-**Perl modules needed:** [threads](http://search.cpan.org/~jdhedden/threads-2.09/lib/threads.pm), which is likely not installed on most systesm by default.
+**Perl modules needed:** [threads](http://search.cpan.org/~jdhedden/threads-2.09/lib/threads.pm), which is likely not installed on most systesm by default. Can be installed very easily (with admin privileges) via cpan minus:
+
+> sudo cpanm threads
 
 3. Using RUBBLE
 ---------------
