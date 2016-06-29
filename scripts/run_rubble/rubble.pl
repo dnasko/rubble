@@ -10,7 +10,7 @@ rubble.pl -- runs the RUBBLE protein BLAST pipeline
 
 =head1 SYNOPSIS
 
- rubble.pl --query /Path/to/input.fasta --db /Path/to/database --dbClust /Path/to/clustered_database --lookup /Path/to/db.lookup --out /Path/to/out.btab --evalue 1e-3 --threads 1
+ rubble.pl --query=/Path/to/input.fasta --db=/Path/to/database --dbClust=/Path/to/clustered_database --lookup=/Path/to/db.lookup --out=/Path/to/out.btab --evalue=1e-3 --max_target_seqs=500  --threads=1
                     [--grid] [--help] [--manual] [--debug]
 
 =head1 DESCRIPTION
@@ -50,6 +50,10 @@ Output file in BLAST tabular format. (Required)
 =item B<-e, --evalue>=FLOAT
 
 The e-value cutoff. (Defualt = 1e-3)
+
+=item B<-mx, --max_target_seqs>=INT
+
+Maximum number of aligned sequences to keep. (Defualt = 500)
 
 =item B<-t, --threads>=INT
 
@@ -108,6 +112,7 @@ my($query,$db,$dbClust,$lookup,$out,$grid,$help,$manual,$debug);
 ## ARG's with defaults
 my $evalue = 0.001;
 my $threads = 1;
+my $max_target_seqs=500;
 
 GetOptions (	
                                 "q|query=s"	=>	\$query,
@@ -117,7 +122,8 @@ GetOptions (
                                 "o|out=s"	=>	\$out,
                                 "e|evalue=s"    =>      \$evalue,
                                 "t|threads=i"   =>      \$threads,
-				"h|help"	=>	\$help,
+				"mx|max_target_seqs=i" => \$max_target_seqs,
+                                "h|help"	=>	\$help,
 				"m|manual"	=>	\$manual,
                                 "b|debug"       =>      \$debug);
 
@@ -130,7 +136,9 @@ pod2usage( -msg  => "\n\n ERROR!  Required argument --dbClust not found.\n\n", -
 pod2usage( -msg  => "\n\n ERROR!  Required argument --lookup not found.\n\n", -exitval => 2, -verbose => 1)  if (! $lookup);
 pod2usage( -msg  => "\n\n ERROR!  Required argument --out not found.\n\n", -exitval => 2, -verbose => 1)     if (! $out);
 $threads = int($threads);
+$max_target_seqs = int($max_target_seqs);
 if ($threads < 1) { die "\n Error! --threads needs to be >0 and a whole number.\n";}
+if ($max_target_seqs < 1) { die "\n Error! --max_target_seqs needs to be >0 and a whole number.\n";}
 
 if ($grid ) { print "\n Warning: The --grid option is not working yet.\n"; }
 
@@ -154,10 +162,10 @@ print `mkdir -p $working_dir/2-restrict`;
 ## 1. Initial BLAST against clustered BLAST DB ##
 #################################################
 if ($threads == 1) {
-    my $blast_exe = "blastp -query " . $query .	" -db " . $dbClust . " -out " . $working_dir . "/0-blast_clust/out.btab" . " -evalue " . $evalue . " -outfmt 6";
+    my $blast_exe = "blastp -query " . $query .	" -db " . $dbClust . " -out " . $working_dir . "/0-blast_clust/out.btab" . " -evalue " . $evalue . " -outfmt 6" . " -max_target_seqs " . $max_target_seqs;
     print `$blast_exe`;
 }
-else { para_blastp($query, $dbClust, "$working_dir/0-blast_clust/", $evalue, $threads, ""); }
+else { para_blastp($query, $dbClust, "$working_dir/0-blast_clust/", $evalue, $threads, $max_target_seqs, ""); }
 
 #################################################
 ## 2. Cull the query sequences that have a hit ##
@@ -218,12 +226,12 @@ close(OUT);
 ## 4. Final BLAST using the restriction list ##
 ###############################################
 if ($threads == 1) {
-    my $blast_exe = "blastp -query " . "$working_dir/1-cull/query_cull.fasta" . " -db " . $db . " -out " . $out . " -evalue " . $evalue . " -outfmt 6" . " -seqidlist " . "$working_dir/2-restrict/restrict.txt" . " -dbsize " . $residues;
+    my $blast_exe = "blastp -query " . "$working_dir/1-cull/query_cull.fasta" . " -db " . $db . " -out " . $out . " -evalue " . $evalue . " -outfmt \"6 std ppos\"" . " -seqidlist " . "$working_dir/2-restrict/restrict.txt" . " -dbsize " . $residues . " -max_target_seqs " . $max_target_seqs;
     print `$blast_exe`;
 }
 else {
     my $passthrough = " -seqidlist " . "$working_dir/2-restrict/restrict.txt" . " -dbsize " . $residues;
-    para_blastp($query, $dbClust, "$working_dir/0-blast_clust/", $evalue, $threads, $passthrough);
+    para_blastp($query, $dbClust, "$working_dir/0-blast_clust/", $evalue, $threads, $max_target_seqs, $passthrough);
 }
 
 
@@ -247,7 +255,7 @@ sub para_blastp
     my $seqs_per_thread = seqs_per_thread($seqs, $threads);
     my $nfiles = split_multifasta($q, "$o/para_blastp", "split", $seqs_per_thread, $t);
     for (my $i=1; $i<=$nfiles; $i++) {
-	my $blast_exe = "blastp -query $o/para_blastp/split-$i.fsa -db $dbClust -out $o/para_blastp/$i.btab -outfmt 6 -evalue $evalue" . $pass;
+	my $blast_exe = "blastp -query $o/para_blastp/split-$i.fsa -db $dbClust -out $o/para_blastp/$i.btab -outfmt \"6 std ppos\" -evalue $evalue" . $pass;
 	push (@THREADS, threads->create('task',"$blast_exe"));
     }
     foreach my $thread (@THREADS) {
