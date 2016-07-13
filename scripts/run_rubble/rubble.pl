@@ -11,7 +11,7 @@ rubble.pl -- runs the RUBBLE protein BLAST pipeline
 =head1 SYNOPSIS
 
  rubble.pl --query=/Path/to/input.fasta --db=/Path/to/database --dbClust=/Path/to/clustered_database --lookup=/Path/to/db.lookup --out=/Path/to/out.btab --evalue=1e-3 --max_target_seqs=500  --threads=1
-                    [--grid] [--help] [--manual] [--debug]
+                    [--grid] [--version] [--help] [--manual] [--debug]
 
 =head1 DESCRIPTION
 
@@ -63,6 +63,10 @@ The number of threads to use for the BLAST. (Default = 1)
 
 Use this flag to run your BLAST's on Grid Engine (Not working yet, will soon I hope)
 
+=item B<-v, --version>
+
+Print the RUBBLE version. (Optional)
+
 =item B<-h, --help>
 
 Displays the usage message.  (Optional) 
@@ -108,12 +112,12 @@ use Pod::Usage;
 use Threads;
 
 ## ARGUMENTS WITH NO DEFAULT
-my($query,$db,$dbClust,$lookup,$out,$grid,$help,$manual,$debug);
+my($query,$db,$dbClust,$lookup,$out,$grid,$help,$manual,$debug,$ver);
 ## ARG's with defaults
 my $evalue = 0.001;
 my $threads = 1;
 my $max_target_seqs=500;
-
+my $version = "1.0";
 GetOptions (	
                                 "q|query=s"	=>	\$query,
                                 "d|db=s"        =>      \$db,
@@ -122,7 +126,8 @@ GetOptions (
                                 "o|out=s"	=>	\$out,
                                 "e|evalue=s"    =>      \$evalue,
                                 "t|threads=i"   =>      \$threads,
-				"mx|max_target_seqs=i" => \$max_target_seqs,
+                                "mx|max_target_seqs=i" => \$max_target_seqs,
+                                "v|version"     =>      \$ver,
                                 "h|help"	=>	\$help,
 				"m|manual"	=>	\$manual,
                                 "b|debug"       =>      \$debug);
@@ -130,6 +135,7 @@ GetOptions (
 ## VALIDATE ARGS
 pod2usage(-verbose => 2)  if ($manual);
 pod2usage( {-exitval => 0, -verbose => 2, -output => \*STDERR} )  if ($help);
+if ($ver) {die "\n RUBBLE version: $version\n\n";}
 pod2usage( -msg  => "\n\n ERROR!  Required argument --query not found.\n\n", -exitval => 2, -verbose => 1)   if (! $query);
 pod2usage( -msg  => "\n\n ERROR!  Required argument --db not found.\n\n", -exitval => 2, -verbose => 1)      if (! $db);
 pod2usage( -msg  => "\n\n ERROR!  Required argument --dbClust not found.\n\n", -exitval => 2, -verbose => 1) if (! $dbClust);
