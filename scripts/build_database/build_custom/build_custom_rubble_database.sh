@@ -38,23 +38,26 @@ fi
 
 basein=${infile##*/}
 basein=${basein%.*}
-mkdir -o ${outdir}
-# cd-hit -i ${infile} -o ${outdir}/${basein}.60 -c 0.6 -M 0 -T 0 -d 10000000 -n4
 
-echo "
+if ! [ -a $infile ]; then
+    printf $"\n\n ERROR: Cannot find the input file: ${infile}\n\n"
+    exit 1
+fi
 
- in = $infile
- out = $outdir
- base = $basein
+## Now for the actual work...
 
-"
-
-# INFILE=$1
-# OUTDIR=$2
-
-# mkdir -p ${OUTIDR}
-
-# cd-hit -i ${INFILE} -o ${INFILE}.60 -c 0.6 -M 0 -T 0 -d 10000000 -n 4
-# makeblastdb -in ${INFILE} -dbtype prot -parse_seqids
-# makeblastdb -in ${INFILE}.60 -dbtype prot
-
+mkdir -p ${outdir}
+printf "\n Building RUBBLE Databases: "; date;
+printf "\n [ 1/4 ] Running CD-HIT ...\n"
+cd-hit -i ${infile} -o ${outdir}/${basein}.60 -c 0.6 -M 0 -d 10000000 -n 4 -T 0 &> ${outdir}/cd-hit.log
+printf " [ 2/4 ] Building the cluster lookup file ...\n"
+perl clstr2rubble_lookup.pl ${outdir}/${basein}.60.clstr > ${outdir}/${basein}.rubble.lookup
+printf " [ 3/4 ] Building the BLASTp clustered database ...\n"
+makeblastdb -in ${outdir}/${basein}.60 -out ${outdir}/${basein}_60 -dbtype prot &> ${outdir}/makeblastdb_60.log
+printf " [ 4/4 ] Building the BLASTp non-clustered database ...\n"
+makeblastdb -in ${infile} -out ${outdir}/${basein}_100 -dbtype prot -parse_seqids &> ${outdir}/makeblastdb_100.log
+printf "\n\n RUBBLE database build complete! "; date;
+printf "\n\n"
+printf " Here is an exmaple command you would use to run a RUBBLE search against the database you just built:\n\n"
+printf "    rubble.pl -q input_queries.fasta --db=${outdir}/${basein}_100 --dbClust=${outdir}/${basein}_60 --lookup=${outdir}/${basein}.rubble.lookup"
+printf "\n\n\n"
