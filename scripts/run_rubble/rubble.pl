@@ -109,7 +109,7 @@ use strict;
 use Getopt::Long;
 use File::Basename;
 use Pod::Usage;
-use Threads;
+use threads;
 
 ## ARGUMENTS WITH NO DEFAULT
 my($query,$db,$dbClust,$lookup,$out,$grid,$help,$manual,$debug,$ver);
