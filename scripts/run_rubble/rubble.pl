@@ -237,7 +237,7 @@ if ($threads == 1) {
 }
 else {
     my $passthrough = " -seqidlist " . "$working_dir/2-restrict/restrict.txt" . " -dbsize " . $residues;
-    para_blastp($query, $dbClust, "$working_dir/0-blast_clust/", $evalue, $threads, $max_target_seqs, $passthrough);
+    para_blastp($query, $db, "$working_dir/0-blast_clust/", $evalue, $threads, $max_target_seqs, $passthrough);
 }
 
 
@@ -254,14 +254,15 @@ sub para_blastp
     my $o = $_[2];
     my $e = $_[3];
     my $t = $_[4];
-    my $pass = $_[5];
+    my $max = $_[5];
+    my $pass = $_[6];
     my @THREADS;
     print `mkdir -p $o/para_blastp`;
     my $seqs=count_seqs($q);
     my $seqs_per_thread = seqs_per_thread($seqs, $threads);
     my $nfiles = split_multifasta($q, "$o/para_blastp", "split", $seqs_per_thread, $t);
     for (my $i=1; $i<=$nfiles; $i++) {
-	my $blast_exe = "blastp -query $o/para_blastp/split-$i.fsa -db $dbClust -out $o/para_blastp/$i.btab -outfmt \"6 std ppos\" -evalue $evalue" . $pass;
+	my $blast_exe = "blastp -query $o/para_blastp/split-$i.fsa -db $dbClust -out $o/para_blastp/$i.btab -outfmt \"6 std ppos\" -evalue $evalue -max_target_seqs $max " . $pass;
 	push (@THREADS, threads->create('task',"$blast_exe"));
     }
     foreach my $thread (@THREADS) {
