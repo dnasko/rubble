@@ -75,6 +75,10 @@ Displays the usage message.  (Optional)
 
 Displays full manual.  (Optional) 
 
+=item B<-b, --debug>
+
+Debug mode. Will supress the removal of the working directory. (Optional)
+
 =back
 
 =head1 DEPENDENCIES
