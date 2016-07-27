@@ -159,10 +159,11 @@ my $BLASTDBCMD = `which blastdbcmd`;
 unless ($BLASTDBCMD =~ m/blastdbcmd/) { die "\n ERROR: blastdbcmd is not installed or in your PATH. It's a part of NCBI's blast package.\n"; }
 
 ## Create a temporary working directory that will be removed after we're done
+my $outdir = dirname($out);
 my @chars = ("A".."Z", "a".."z");
 my $rand_string;
 $rand_string .= $chars[rand @chars] for 1..8;
-my $working_dir = $out . "/rubble_working_" . $rand_string;
+my $working_dir = $outdir . "/rubble_working_" . $rand_string;
 print `mkdir -p $working_dir`;
 print `mkdir -p $working_dir/0-blast_clust`;
 print `mkdir -p $working_dir/1-cull`;
