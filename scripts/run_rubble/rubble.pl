@@ -177,7 +177,7 @@ if ($threads == 1) {
     my $blast_exe = "blastp -query " . $query .	" -db " . $dbClust . " -out " . $working_dir . "/0-blast_clust/out.btab" . " -evalue " . $evalue . " -outfmt 6" . " -max_target_seqs " . $max_target_seqs;
     print `$blast_exe`;
 }
-else { para_blastp($query, $dbClust, "$working_dir/0-blast_clust/", $evalue, $threads, $max_target_seqs, ""); }
+else { para_blastp($query, $dbClust, "$working_dir/0-blast_clust/", $evalue, $threads, $max_target_seqs, "", "6 std ppos"); }
 
 #################################################
 ## 2. Cull the query sequences that have a hit ##
@@ -243,7 +243,7 @@ if ($threads == 1) {
 }
 else {
     my $passthrough = " -seqidlist " . "$working_dir/2-restrict/restrict.txt" . " -dbsize " . $residues;
-    para_blastp("$working_dir/1-cull/query_cull.fasta", $db, "$working_dir/3-blast_final/", $evalue, $threads, $max_target_seqs, $passthrough);
+    para_blastp("$working_dir/1-cull/query_cull.fasta", $db, "$working_dir/3-blast_final/", $evalue, $threads, $max_target_seqs, $passthrough, "6 std ppos");
     print `mv $working_dir/3-blast_final/out.btab $out`;
 }
 
@@ -263,13 +263,14 @@ sub para_blastp
     my $t = $_[4];
     my $max = $_[5];
     my $pass = $_[6];
+    my $outfmt = $_[7];
     my @THREADS;
     print `mkdir -p $o/para_blastp`;
     my $seqs=count_seqs($q);
     my $seqs_per_thread = seqs_per_thread($seqs, $threads);
     my $nfiles = split_multifasta($q, "$o/para_blastp", "split", $seqs_per_thread, $t);
     for (my $i=1; $i<=$nfiles; $i++) {
-	my $blast_exe = "blastp -query $o/para_blastp/split-$i.fsa -db $d -out $o/para_blastp/$i.btab -outfmt \"6 std ppos\" -evalue $evalue -max_target_seqs $max " . $pass;
+	my $blast_exe = "blastp -query $o/para_blastp/split-$i.fsa -db $d -out $o/para_blastp/$i.btab -outfmt \"$outfmt\" -evalue $evalue -max_target_seqs $max " . $pass;
 	push (@THREADS, threads->create('task',"$blast_exe"));
     }
     foreach my $thread (@THREADS) {
