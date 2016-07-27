@@ -332,4 +332,5 @@ sub task
 {
     system( @_ );
 }
+# VIROME likes: qseqid,qlen,sseqid,salltitles,qstart,qend,sstart,send,pident,ppos,score,bitscore,slen,evalue
 exit 0;
