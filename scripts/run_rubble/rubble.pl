@@ -75,6 +75,10 @@ Displays the usage message.  (Optional)
 
 Displays full manual.  (Optional) 
 
+=item B<-b, --debug>
+
+Debug mode. Will supress the removal of the working directory. (Optional)
+
 =back
 
 =head1 DEPENDENCIES
@@ -109,7 +113,7 @@ use strict;
 use Getopt::Long;
 use File::Basename;
 use Pod::Usage;
-use Threads;
+use threads;
 
 ## ARGUMENTS WITH NO DEFAULT
 my($query,$db,$dbClust,$lookup,$out,$grid,$help,$manual,$debug,$ver);
@@ -163,6 +167,7 @@ print `mkdir -p $working_dir`;
 print `mkdir -p $working_dir/0-blast_clust`;
 print `mkdir -p $working_dir/1-cull`;
 print `mkdir -p $working_dir/2-restrict`;
+print `mkdir -p $working_dir/3-blast_final`;
 
 #################################################
 ## 1. Initial BLAST against clustered BLAST DB ##
@@ -237,7 +242,8 @@ if ($threads == 1) {
 }
 else {
     my $passthrough = " -seqidlist " . "$working_dir/2-restrict/restrict.txt" . " -dbsize " . $residues;
-    para_blastp($query, $dbClust, "$working_dir/0-blast_clust/", $evalue, $threads, $max_target_seqs, $passthrough);
+    para_blastp("$working_dir/1-cull/query_cull.fasta", $db, "$working_dir/3-blast_final/", $evalue, $threads, $max_target_seqs, $passthrough);
+    print `mv $working_dir/3-blast_final/out.btab $out`;
 }
 
 
@@ -254,14 +260,15 @@ sub para_blastp
     my $o = $_[2];
     my $e = $_[3];
     my $t = $_[4];
-    my $pass = $_[5];
+    my $max = $_[5];
+    my $pass = $_[6];
     my @THREADS;
     print `mkdir -p $o/para_blastp`;
     my $seqs=count_seqs($q);
     my $seqs_per_thread = seqs_per_thread($seqs, $threads);
     my $nfiles = split_multifasta($q, "$o/para_blastp", "split", $seqs_per_thread, $t);
     for (my $i=1; $i<=$nfiles; $i++) {
-	my $blast_exe = "blastp -query $o/para_blastp/split-$i.fsa -db $dbClust -out $o/para_blastp/$i.btab -outfmt \"6 std ppos\" -evalue $evalue" . $pass;
+	my $blast_exe = "blastp -query $o/para_blastp/split-$i.fsa -db $d -out $o/para_blastp/$i.btab -outfmt \"6 std ppos\" -evalue $evalue -max_target_seqs $max " . $pass;
 	push (@THREADS, threads->create('task',"$blast_exe"));
     }
     foreach my $thread (@THREADS) {
