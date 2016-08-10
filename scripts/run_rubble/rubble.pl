@@ -242,9 +242,11 @@ if ($threads == 1) {
     print `$blast_exe`;
 }
 else {
-    my $passthrough = " -seqidlist " . "$working_dir/2-restrict/restrict.txt" . " -dbsize " . $residues;
-    para_blastp("$working_dir/1-cull/query_cull.fasta", $db, "$working_dir/3-blast_final/", $evalue, $threads, $max_target_seqs, $passthrough, "6 std ppos");
-    print `mv $working_dir/3-blast_final/out.btab $out`;
+    # my $passthrough = " -seqidlist " . "$working_dir/2-restrict/restrict.txt" . " -dbsize " . $residues;
+    # para_blastp("$working_dir/1-cull/query_cull.fasta", $db, "$working_dir/3-blast_final/", $evalue, $threads, $max_target_seqs, $passthrough, "6 std ppos");
+    # print `mv $working_dir/3-blast_final/out.btab $out`;
+    my $blast_exe = "blastp -query " . "$working_dir/1-cull/query_cull.fasta" . " -db " . $db . " -out " . $out . " -evalue " . $evalue . " -outfmt \"6 std ppos\"" . " -seqidlist " . "$working_dir/2-restrict/restrict.txt" . " -dbsize " . $residues . " -max_target_seqs " . $max_target_seqs . " -num_threads " . $threads;
+    print `$blast_exe`;
 }
 
 
