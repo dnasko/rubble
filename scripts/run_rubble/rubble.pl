@@ -158,6 +158,9 @@ my $BLASTP = `which blastp`;
 unless ($BLASTP =~ m/blastp/) { die "\n ERROR: NCBI's blastp is not installed, or not located in your PATH. Please install it and put it in your PATH (ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/)\n"; }
 my $BLASTDBCMD = `which blastdbcmd`;
 unless ($BLASTDBCMD =~ m/blastdbcmd/) { die "\n ERROR: blastdbcmd is not installed or in your PATH. It's a part of NCBI's blast package.\n"; }
+## Check that BLAST databases exist and are formatted appropriately
+checkdb($dbClust, 'normal');
+checkdb($db,   'seqidlist');
 
 ## Create a temporary working directory that will be removed after we're done
 my $outdir = dirname($out);
@@ -246,6 +249,22 @@ print `$blast_exe`;
 ## Cleaning up.
 unless ($debug && -d $working_dir) {
     print `rm -rf $working_dir`;
+}
+
+sub checkdb
+{
+    my $d = $_[0];
+    my $mode = $_[1];
+    if ($mode eq "normal") {
+	unless (-e $d . ".psq" || -e $d . ".00.psq") {
+	    die "\n Error: The pre-clustered database you provided does not appear to be built correctly (i.e. contains no " . $d . "*.psq files)" . "\n";
+	}
+    }
+    elsif ($mode eq "seqidlist") {
+	unless (-e $d . ".pog" || -e $d . ".00.pog") {
+	    die "\n Error: The clustered database you provided does not appear to be built correctly (i.e. contains no " . $d . "*.pog files)" . "\n" . " Make sure you build this database with the -seqislist flag when using makeblastdb" . "\n";
+	}
+    }
 }
 
 sub para_blastp
