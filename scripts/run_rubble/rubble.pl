@@ -205,7 +205,8 @@ while(<IN>) {
 	$print_flag = 0;
 	my $h = $_;
 	$h =~ s/^>//;
-	$h =~ s/ .*//;
+	$h =~ s/ .*//;  ## If the header has spaces in it BLAST will strip these away
+	$h =~ s/\t.*//; ## Oh and if the header has a TABs in it too
 	if (exists $QueryCull{$h}) {
 	    $print_flag = 1;
 	    print OUT $_ . "\n";
