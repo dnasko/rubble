@@ -4,10 +4,6 @@ Welcome to Rubble, a pipeline that enables you to perform BLAST searches 10-20X 
 
 Rubble is most useful when your subject BLAST database is large (e.g. UniRef100).
 
-## News
-
-* 26-Sep-2018: The Rubble preprint is now available on bioRxiv: https://www.biorxiv.org/content/early/2018/09/26/426098.
-
 ## Downloading Rubble
 
 To download, simply clone the Rubble repository from GitHub:
@@ -40,7 +36,9 @@ Before you can BLAST a set of query sequences against a set of subject sequences
 #### Creating Rubble databases
 
 
+## Citing Rubble
 
+A peer-reviewed manuscript is still being prepared. In the meantime you can find the preprint available on bioRxiv here: https://www.biorxiv.org/content/early/2018/09/26/426098.
 
 ## Acknowledgements
 
